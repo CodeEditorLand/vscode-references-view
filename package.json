@@ -1,22 +1,24 @@
 {
-  "activationEvents": [
-    "onCommand:references-view.find",
-    "onCommand:references-view.findReferences",
-    "onCommand:references-view.findImplementations",
-    "onCommand:references-view.showCallHierarchy",
-    "onCommand:references-view.showTypeHierarchy",
-    "onCommand:editor.action.showReferences",
-    "onView:references-view.tree"
-  ],
-  "browser": "./dist/extension",
+  "name": "references-view",
+  "displayName": "Reference Search View",
+  "version": "0.0.90",
+  "description": "Reference Search results as separate, stable view in the sidebar",
   "bugs": {
     "url": "https://github.com/Microsoft/vscode-references-view/issues"
   },
-  "capabilities": {
-    "untrustedWorkspaces": {
-      "supported": true
-    },
-    "virtualWorkspaces": true
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Microsoft/vscode-references-view"
+  },
+  "publisher": "ms-vscode",
+  "main": "./dist/extension",
+  "browser": "./dist/extension",
+  "scripts": {
+    "bundle": "esbuild src/extension.ts --bundle --outdir=dist --external:vscode --platform=node --target=node12.18 --minify --sourcemap",
+    "deploy": "npx vsce publish",
+    "ts-compile": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "vscode:prepublish": "npm run typecheck && npm run bundle"
   },
   "contributes": {
     "commands": [
@@ -384,27 +386,25 @@
       ]
     }
   },
-  "description": "Reference Search results as separate, stable view in the sidebar",
+  "activationEvents": [
+    "onCommand:references-view.find",
+    "onCommand:references-view.findReferences",
+    "onCommand:references-view.findImplementations",
+    "onCommand:references-view.showCallHierarchy",
+    "onCommand:references-view.showTypeHierarchy",
+    "onCommand:editor.action.showReferences",
+    "onView:references-view.tree"
+  ],
   "devDependencies": {
     "@types/node": "12.11.7",
     "esbuild": "0.8.31",
     "typescript": "3.7.2"
   },
-  "displayName": "Reference Search View",
   "icon": "media/icon.png",
-  "main": "./dist/extension",
-  "name": "references-view",
-  "publisher": "ms-vscode",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Microsoft/vscode-references-view"
-  },
-  "scripts": {
-    "bundle": "esbuild src/extension.ts --bundle --outdir=dist --external:vscode --platform=node --target=node12.18 --minify --sourcemap",
-    "deploy": "npx vsce publish",
-    "ts-compile": "tsc -p tsconfig.json",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
-    "vscode:prepublish": "npm run typecheck && npm run bundle"
-  },
-  "version": "0.0.90"
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": true
+    },
+    "virtualWorkspaces": true
+  }
 }
