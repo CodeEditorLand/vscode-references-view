@@ -410,11 +410,11 @@
     "deploy": "npx vsce publish"
   },
   "devDependencies": {
-    "@types/node": "12.11.7",
-    "@typescript-eslint/eslint-plugin": "3.8.0",
-    "@typescript-eslint/parser": "3.8.0",
-    "esbuild": "0.8.31",
-    "eslint": "7.6.0",
-    "typescript": "3.7.2"
+    "@types/node": "20.11.28",
+    "@typescript-eslint/eslint-plugin": "7.2.0",
+    "@typescript-eslint/parser": "7.2.0",
+    "esbuild": "0.20.2",
+    "eslint": "8.57.0",
+    "typescript": "5.4.2"
   }
 }
