@@ -1,30 +1,76 @@
 {
   "name": "references-view",
   "displayName": "Reference Search View",
-  "version": "0.0.90",
+  "icon": "media/icon.png",
   "description": "Reference Search results as separate, stable view in the sidebar",
-  "categories": [
-    "Programming Languages"
-  ],
-  "bugs": {
-    "url": "https://github.com/Microsoft/vscode-references-view/issues"
+  "version": "0.0.90",
+  "publisher": "ms-vscode",
+  "engines": {
+    "vscode": "^1.67.0"
+  },
+  "capabilities": {
+    "virtualWorkspaces": true,
+    "untrustedWorkspaces": {
+      "supported": true
+    }
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/Microsoft/vscode-references-view"
   },
-  "publisher": "ms-vscode",
+  "bugs": {
+    "url": "https://github.com/Microsoft/vscode-references-view/issues"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "activationEvents": [
+    "onCommand:references-view.find",
+    "onCommand:references-view.findReferences",
+    "onCommand:references-view.findImplementations",
+    "onCommand:references-view.showCallHierarchy",
+    "onCommand:references-view.showTypeHierarchy",
+    "onCommand:editor.action.showReferences",
+    "onView:references-view.tree"
+  ],
   "main": "./dist/extension",
   "browser": "./dist/extension",
-  "scripts": {
-    "bundle": "esbuild src/extension.ts --bundle --outdir=dist --external:vscode --platform=node --target=node12.18 --minify --sourcemap",
-    "deploy": "npx vsce publish",
-    "lint": "eslint src --ext ts",
-    "ts-compile": "tsc -p tsconfig.json",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
-    "vscode:prepublish": "npm run typecheck && npm run bundle"
-  },
   "contributes": {
+    "configuration": {
+      "properties": {
+        "references.preferredLocation": {
+          "description": "Controls whether 'Peek References' or 'Find References' is invoked when selecting code lens references",
+          "type": "string",
+          "default": "peek",
+          "enum": [
+            "peek",
+            "view"
+          ],
+          "enumDescriptions": [
+            "Show references in peek editor.",
+            "Show references in separate view."
+          ]
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "references-view",
+          "icon": "$(references)",
+          "title": "References"
+        }
+      ]
+    },
+    "views": {
+      "references-view": [
+        {
+          "id": "references-view.tree",
+          "name": "Results",
+          "when": "reference-list.isActive"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "references-view.findReferences",
@@ -134,45 +180,6 @@
         "command": "references-view.removeTypeItem",
         "title": "Dismiss",
         "icon": "$(close)"
-      }
-    ],
-    "configuration": {
-      "properties": {
-        "references.preferredLocation": {
-          "description": "Controls whether 'Peek References' or 'Find References' is invoked when selecting code lens references",
-          "type": "string",
-          "default": "peek",
-          "enum": [
-            "peek",
-            "view"
-          ],
-          "enumDescriptions": [
-            "Show references in peek editor.",
-            "Show references in separate view."
-          ]
-        }
-      }
-    },
-    "keybindings": [
-      {
-        "command": "references-view.findReferences",
-        "when": "editorHasReferenceProvider",
-        "key": "shift+alt+f12"
-      },
-      {
-        "command": "references-view.next",
-        "when": "reference-list.hasResult",
-        "key": "f4"
-      },
-      {
-        "command": "references-view.prev",
-        "when": "reference-list.hasResult",
-        "key": "shift+f4"
-      },
-      {
-        "command": "references-view.showCallHierarchy",
-        "when": "editorHasCallHierarchyProvider",
-        "key": "shift+alt+h"
       }
     ],
     "menus": {
@@ -371,34 +378,37 @@
         }
       ]
     },
-    "views": {
-      "references-view": [
-        {
-          "id": "references-view.tree",
-          "name": "Results",
-          "when": "reference-list.isActive"
-        }
-      ]
-    },
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "references-view",
-          "icon": "$(references)",
-          "title": "References"
-        }
-      ]
-    }
+    "keybindings": [
+      {
+        "command": "references-view.findReferences",
+        "when": "editorHasReferenceProvider",
+        "key": "shift+alt+f12"
+      },
+      {
+        "command": "references-view.next",
+        "when": "reference-list.hasResult",
+        "key": "f4"
+      },
+      {
+        "command": "references-view.prev",
+        "when": "reference-list.hasResult",
+        "key": "shift+f4"
+      },
+      {
+        "command": "references-view.showCallHierarchy",
+        "when": "editorHasCallHierarchyProvider",
+        "key": "shift+alt+h"
+      }
+    ]
   },
-  "activationEvents": [
-    "onCommand:references-view.find",
-    "onCommand:references-view.findReferences",
-    "onCommand:references-view.findImplementations",
-    "onCommand:references-view.showCallHierarchy",
-    "onCommand:references-view.showTypeHierarchy",
-    "onCommand:editor.action.showReferences",
-    "onView:references-view.tree"
-  ],
+  "scripts": {
+    "vscode:prepublish": "npm run typecheck && npm run bundle",
+    "lint": "eslint src --ext ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "bundle": "esbuild src/extension.ts --bundle --outdir=dist --external:vscode --platform=node --target=node12.18 --minify --sourcemap",
+    "ts-compile": "tsc -p tsconfig.json",
+    "deploy": "npx vsce publish"
+  },
   "devDependencies": {
     "@types/node": "^12.11.7",
     "@typescript-eslint/eslint-plugin": "^3.8.0",
@@ -406,15 +416,5 @@
     "esbuild": "^0.8.31",
     "eslint": "^7.6.0",
     "typescript": "~3.7.2"
-  },
-  "engines": {
-    "vscode": "^1.67.0"
-  },
-  "icon": "media/icon.png",
-  "capabilities": {
-    "virtualWorkspaces": true,
-    "untrustedWorkspaces": {
-      "supported": true
-    }
   }
 }
