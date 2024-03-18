@@ -6,7 +6,7 @@
   "version": "0.0.90",
   "publisher": "ms-vscode",
   "engines": {
-    "vscode": "^1.67.0"
+    "vscode": "1.67.0"
   },
   "capabilities": {
     "virtualWorkspaces": true,
@@ -410,11 +410,11 @@
     "deploy": "npx vsce publish"
   },
   "devDependencies": {
-    "@types/node": "^12.11.7",
-    "@typescript-eslint/eslint-plugin": "^3.8.0",
-    "@typescript-eslint/parser": "^3.8.0",
-    "esbuild": "^0.8.31",
-    "eslint": "^7.6.0",
-    "typescript": "~3.7.2"
+    "@types/node": "12.11.7",
+    "@typescript-eslint/eslint-plugin": "3.8.0",
+    "@typescript-eslint/parser": "3.8.0",
+    "esbuild": "0.8.31",
+    "eslint": "7.6.0",
+    "typescript": "3.7.2"
   }
 }
