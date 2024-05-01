@@ -1,27 +1,35 @@
 {
-	"activationEvents": [
-		"onCommand:references-view.find",
-		"onCommand:references-view.findReferences",
-		"onCommand:references-view.findImplementations",
-		"onCommand:references-view.showCallHierarchy",
-		"onCommand:references-view.showTypeHierarchy",
-		"onCommand:editor.action.showReferences",
-		"onView:references-view.tree"
+	"name": "references-view",
+	"displayName": "Reference Search View",
+	"version": "0.0.1",
+	"private": false,
+	"description": "Reference Search results as separate, stable view in the sidebar",
+	"keywords": [
+		"land"
 	],
-	"author": {
-		"email": "Land@PlayForm.Cloud",
-		"name": "🌆 — Land —",
-		"url": "HTTPS://Land.PlayForm.Cloud"
-	},
-	"browser": "./dist/extension",
+	"homepage": "HTTPS://GitHub.Com/CodeEditorLand/LandReferencesView#readme",
 	"bugs": {
 		"url": "HTTPS://GitHub.Com/CodeEditorLand/LandReferencesView/issues"
 	},
-	"capabilities": {
-		"untrustedWorkspaces": {
-			"supported": true
-		},
-		"virtualWorkspaces": true
+	"repository": {
+		"type": "git",
+		"url": "git+HTTPS://github.com/CodeEditorLand/LandReferencesView.git"
+	},
+	"license": "SEE LICENSE IN LICENSE",
+	"author": {
+		"name": "🌆 — Land —",
+		"email": "Land@PlayForm.Cloud",
+		"url": "HTTPS://Land.PlayForm.Cloud"
+	},
+	"type": "module",
+	"main": "./dist/extension",
+	"browser": "./dist/extension",
+	"scripts": {
+		"Document": "Document 'Source/**/*.ts'",
+		"bundle": "esbuild src/extension.ts --bundle --outdir=dist --external:vscode --platform=node --target=node12.18 --minify --sourcemap",
+		"deploy": "npx vsce publish",
+		"prepublishOnly": "Build 'Source/**/*.ts'",
+		"ts-compile": "tsc -p tsconfig.json"
 	},
 	"contributes": {
 		"commands": [
@@ -389,37 +397,29 @@
 			]
 		}
 	},
-	"description": "Reference Search results as separate, stable view in the sidebar",
+	"activationEvents": [
+		"onCommand:references-view.find",
+		"onCommand:references-view.findReferences",
+		"onCommand:references-view.findImplementations",
+		"onCommand:references-view.showCallHierarchy",
+		"onCommand:references-view.showTypeHierarchy",
+		"onCommand:editor.action.showReferences",
+		"onView:references-view.tree"
+	],
 	"devDependencies": {
 		"@playform/build": "0.0.7",
 		"@playform/document": "0.0.6",
 		"@types/node": "20.12.7",
 		"esbuild": "0.20.2"
 	},
-	"displayName": "Reference Search View",
-	"homepage": "HTTPS://GitHub.Com/CodeEditorLand/LandReferencesView#readme",
-	"icon": "media/icon.png",
-	"keywords": [
-		"land"
-	],
-	"license": "SEE LICENSE IN LICENSE",
-	"main": "./dist/extension",
-	"name": "references-view",
-	"private": false,
 	"publishConfig": {
 		"access": "public"
 	},
-	"repository": {
-		"type": "git",
-		"url": "git+HTTPS://github.com/CodeEditorLand/LandReferencesView.git"
-	},
-	"scripts": {
-		"Document": "Document 'Source/**/*.ts'",
-		"bundle": "esbuild src/extension.ts --bundle --outdir=dist --external:vscode --platform=node --target=node12.18 --minify --sourcemap",
-		"deploy": "npx vsce publish",
-		"prepublishOnly": "Build 'Source/**/*.ts'",
-		"ts-compile": "tsc -p tsconfig.json"
-	},
-	"type": "module",
-	"version": "0.0.1"
+	"icon": "media/icon.png",
+	"capabilities": {
+		"untrustedWorkspaces": {
+			"supported": true
+		},
+		"virtualWorkspaces": true
+	}
 }
