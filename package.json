@@ -1,27 +1,7 @@
 {
 	"name": "references-view",
 	"displayName": "Reference Search View",
-	"version": "0.0.1",
-	"private": false,
 	"description": "Reference Search results as separate, stable view in the sidebar",
-	"keywords": [
-		"land"
-	],
-	"homepage": "HTTPS://GitHub.Com/CodeEditorLand/LandReferencesView#readme",
-	"bugs": {
-		"url": "HTTPS://GitHub.Com/CodeEditorLand/LandReferencesView/issues"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+HTTPS://github.com/CodeEditorLand/LandReferencesView.git"
-	},
-	"license": "SEE LICENSE IN LICENSE",
-	"author": {
-		"name": "🛬 Land —",
-		"email": "Land@PlayForm.Cloud",
-		"url": "HTTPS://Land.PlayForm.Cloud"
-	},
-	"type": "module",
 	"main": "./dist/extension",
 	"browser": "./dist/extension",
 	"scripts": {
@@ -408,12 +388,8 @@
 	],
 	"devDependencies": {
 		"@playform/build": "0.0.7",
-		"@playform/document": "0.0.6",
 		"@types/node": "20.12.10",
 		"esbuild": "0.20.2"
-	},
-	"publishConfig": {
-		"access": "public"
 	},
 	"icon": "media/icon.png",
 	"capabilities": {
