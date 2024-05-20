@@ -112,7 +112,6 @@ export class SymbolsTree {
 		if (typeof model.dispose === 'function') {
 			disposables.push(new vscode.Disposable(() => model.dispose!()));
 		}
-
 		this._sessionDisposable = vscode.Disposable.from(...disposables);
 	}
 
@@ -301,7 +300,6 @@ class TreeInputHistory implements vscode.TreeDataProvider<HistoryItem>{
 		if (newPosition && !item.input.location.range.start.isEqual(newPosition)) {
 			newInput = item.input.with(new vscode.Location(item.input.location.uri, newPosition));
 		}
-
 		this._tree.setInput(newInput);
 	}
 
