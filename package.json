@@ -385,8 +385,8 @@
 		"onView:references-view.tree"
 	],
 	"devDependencies": {
-		"@types/node": "12.11.7",
-		"esbuild": "0.8.31"
+		"@types/node": "20.12.12",
+		"esbuild": "0.21.3"
 	},
 	"icon": "media/icon.png",
 	"capabilities": {
