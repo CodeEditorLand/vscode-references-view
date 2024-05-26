@@ -386,7 +386,7 @@
 	],
 	"devDependencies": {
 		"@types/node": "20.12.12",
-		"esbuild": "0.21.3"
+		"esbuild": "0.21.4"
 	},
 	"icon": "media/icon.png",
 	"capabilities": {
