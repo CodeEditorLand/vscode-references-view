@@ -383,8 +383,8 @@
 	},
 	"description": "Reference Search results as separate, stable view in the sidebar",
 	"devDependencies": {
-		"@types/node": "^12.11.7",
-		"esbuild": "^0.8.31"
+		"@types/node": "^20.14.2",
+		"esbuild": "^0.21.5"
 	},
 	"displayName": "Reference Search View",
 	"icon": "media/icon.png",
