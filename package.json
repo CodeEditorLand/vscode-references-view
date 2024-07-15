@@ -1,19 +1,13 @@
 {
-	"activationEvents": [
-		"onCommand:references-view.find",
-		"onCommand:references-view.findReferences",
-		"onCommand:references-view.findImplementations",
-		"onCommand:references-view.showCallHierarchy",
-		"onCommand:references-view.showTypeHierarchy",
-		"onCommand:editor.action.showReferences",
-		"onView:references-view.tree"
-	],
+	"name": "references-view",
+	"displayName": "Reference Search View",
+	"description": "Reference Search results as separate, stable view in the sidebar",
+	"main": "./dist/extension",
 	"browser": "./dist/extension",
-	"capabilities": {
-		"untrustedWorkspaces": {
-			"supported": true
-		},
-		"virtualWorkspaces": true
+	"scripts": {
+		"bundle": "esbuild src/extension.ts --bundle --outdir=dist --external:vscode --platform=node --target=node12.18 --minify --sourcemap",
+		"deploy": "npx vsce publish",
+		"ts-compile": "tsc -p tsconfig.json"
 	},
 	"contributes": {
 		"commands": [
@@ -381,18 +375,24 @@
 			]
 		}
 	},
-	"description": "Reference Search results as separate, stable view in the sidebar",
+	"activationEvents": [
+		"onCommand:references-view.find",
+		"onCommand:references-view.findReferences",
+		"onCommand:references-view.findImplementations",
+		"onCommand:references-view.showCallHierarchy",
+		"onCommand:references-view.showTypeHierarchy",
+		"onCommand:editor.action.showReferences",
+		"onView:references-view.tree"
+	],
 	"devDependencies": {
 		"@types/node": "^12.11.7",
 		"esbuild": "^0.8.31"
 	},
-	"displayName": "Reference Search View",
 	"icon": "media/icon.png",
-	"main": "./dist/extension",
-	"name": "references-view",
-	"scripts": {
-		"bundle": "esbuild src/extension.ts --bundle --outdir=dist --external:vscode --platform=node --target=node12.18 --minify --sourcemap",
-		"deploy": "npx vsce publish",
-		"ts-compile": "tsc -p tsconfig.json"
+	"capabilities": {
+		"untrustedWorkspaces": {
+			"supported": true
+		},
+		"virtualWorkspaces": true
 	}
 }
