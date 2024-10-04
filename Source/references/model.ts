@@ -3,30 +3,41 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import * as vscode from 'vscode';
-import { SymbolItemDragAndDrop, SymbolItemEditorHighlights, SymbolItemNavigation, SymbolTreeInput, SymbolTreeModel } from '../references-view';
-import { asResourceUrl, del, getPreviewChunks, tail } from '../utils';
+import * as vscode from "vscode";
 
-export class ReferencesTreeInput implements SymbolTreeInput<FileItem | ReferenceItem> {
+import {
+	SymbolItemDragAndDrop,
+	SymbolItemEditorHighlights,
+	SymbolItemNavigation,
+	SymbolTreeInput,
+	SymbolTreeModel,
+} from "../references-view";
+import { asResourceUrl, del, getPreviewChunks, tail } from "../utils";
 
+export class ReferencesTreeInput
+	implements SymbolTreeInput<FileItem | ReferenceItem>
+{
 	readonly contextValue: string;
 
 	constructor(
 		readonly title: string,
 		readonly location: vscode.Location,
 		private readonly _command: string,
-		private readonly _result?: vscode.Location[] | vscode.LocationLink[]
+		private readonly _result?: vscode.Location[] | vscode.LocationLink[],
 	) {
 		this.contextValue = _command;
 	}
 
 	async resolve() {
-
 		let model: ReferencesModel;
 		if (this._result) {
 			model = new ReferencesModel(this._result);
 		} else {
-			const resut = await Promise.resolve(vscode.commands.executeCommand<vscode.Location[] | vscode.LocationLink[]>(this._command, this.location.uri, this.location.range.start));
+			const resut = await Promise.resolve(
+				vscode.commands.executeCommand<
+					vscode.Location[] | vscode.LocationLink[]
+				>(this._command, this.location.uri, this.location.range.start),
+			);
 			model = new ReferencesModel(resut ?? []);
 		}
 
@@ -38,13 +49,15 @@ export class ReferencesTreeInput implements SymbolTreeInput<FileItem | Reference
 
 		return <SymbolTreeModel<FileItem | ReferenceItem>>{
 			provider,
-			get message() { return model.message; },
+			get message() {
+				return model.message;
+			},
 			navigation: model,
 			highlights: model,
 			dnd: model,
 			dispose(): void {
 				provider.dispose();
-			}
+			},
 		};
 	}
 
@@ -53,9 +66,15 @@ export class ReferencesTreeInput implements SymbolTreeInput<FileItem | Reference
 	}
 }
 
-export class ReferencesModel implements SymbolItemNavigation<FileItem | ReferenceItem>, SymbolItemEditorHighlights<FileItem | ReferenceItem>, SymbolItemDragAndDrop<FileItem | ReferenceItem> {
-
-	private _onDidChange = new vscode.EventEmitter<FileItem | ReferenceItem | undefined>();
+export class ReferencesModel
+	implements
+		SymbolItemNavigation<FileItem | ReferenceItem>,
+		SymbolItemEditorHighlights<FileItem | ReferenceItem>,
+		SymbolItemDragAndDrop<FileItem | ReferenceItem>
+{
+	private _onDidChange = new vscode.EventEmitter<
+		FileItem | ReferenceItem | undefined
+	>();
 	readonly onDidChangeTreeData = this._onDidChange.event;
 
 	readonly items: FileItem[] = [];
@@ -63,21 +82,29 @@ export class ReferencesModel implements SymbolItemNavigation<FileItem | Referenc
 	constructor(locations: vscode.Location[] | vscode.LocationLink[]) {
 		let last: FileItem | undefined;
 		for (const item of locations.sort(ReferencesModel._compareLocations)) {
-			const loc = item instanceof vscode.Location
-				? item
-				: new vscode.Location(item.targetUri, item.targetRange);
+			const loc =
+				item instanceof vscode.Location
+					? item
+					: new vscode.Location(item.targetUri, item.targetRange);
 
-			if (!last || ReferencesModel._compareUriIgnoreFragment(last.uri, loc.uri) !== 0) {
-				last = new FileItem(loc.uri.with({ fragment: '' }), [], this);
+			if (
+				!last ||
+				ReferencesModel._compareUriIgnoreFragment(last.uri, loc.uri) !==
+					0
+			) {
+				last = new FileItem(loc.uri.with({ fragment: "" }), [], this);
 				this.items.push(last);
 			}
 			last.references.push(new ReferenceItem(loc, last));
 		}
 	}
 
-	private static _compareUriIgnoreFragment(a: vscode.Uri, b: vscode.Uri): number {
-		let aStr = a.with({ fragment: '' }).toString();
-		let bStr = b.with({ fragment: '' }).toString();
+	private static _compareUriIgnoreFragment(
+		a: vscode.Uri,
+		b: vscode.Uri,
+	): number {
+		let aStr = a.with({ fragment: "" }).toString();
+		let bStr = b.with({ fragment: "" }).toString();
 		if (aStr < bStr) {
 			return -1;
 		} else if (aStr > bStr) {
@@ -86,7 +113,10 @@ export class ReferencesModel implements SymbolItemNavigation<FileItem | Referenc
 		return 0;
 	}
 
-	private static _compareLocations(a: vscode.Location | vscode.LocationLink, b: vscode.Location | vscode.LocationLink): number {
+	private static _compareLocations(
+		a: vscode.Location | vscode.LocationLink,
+		b: vscode.Location | vscode.LocationLink,
+	): number {
 		let aUri = a instanceof vscode.Location ? a.uri : a.targetUri;
 		let bUri = b instanceof vscode.Location ? b.uri : b.targetUri;
 		if (aUri.toString() < bUri.toString()) {
@@ -110,9 +140,12 @@ export class ReferencesModel implements SymbolItemNavigation<FileItem | Referenc
 
 	get message() {
 		if (this.items.length === 0) {
-			return 'No results.';
+			return "No results.";
 		}
-		const total = this.items.reduce((prev, cur) => prev + cur.references.length, 0);
+		const total = this.items.reduce(
+			(prev, cur) => prev + cur.references.length,
+			0,
+		);
 		const files = this.items.length;
 		if (total === 1 && files === 1) {
 			return `${total} result in ${files} file`;
@@ -129,8 +162,10 @@ export class ReferencesModel implements SymbolItemNavigation<FileItem | Referenc
 		return item instanceof ReferenceItem ? item.location : undefined;
 	}
 
-	nearest(uri: vscode.Uri, position: vscode.Position): FileItem | ReferenceItem | undefined {
-
+	nearest(
+		uri: vscode.Uri,
+		position: vscode.Position,
+	): FileItem | ReferenceItem | undefined {
 		if (this.items.length === 0) {
 			return;
 		}
@@ -161,10 +196,16 @@ export class ReferencesModel implements SymbolItemNavigation<FileItem | Referenc
 
 		// (3) pick the file with the longest common prefix
 		let best = 0;
-		let bestValue = ReferencesModel._prefixLen(this.items[best].toString(), uri.toString());
+		let bestValue = ReferencesModel._prefixLen(
+			this.items[best].toString(),
+			uri.toString(),
+		);
 
 		for (let i = 1; i < this.items.length; i++) {
-			let value = ReferencesModel._prefixLen(this.items[i].uri.toString(), uri.toString());
+			let value = ReferencesModel._prefixLen(
+				this.items[i].uri.toString(),
+				uri.toString(),
+			);
 			if (value > bestValue) {
 				best = i;
 			}
@@ -175,7 +216,11 @@ export class ReferencesModel implements SymbolItemNavigation<FileItem | Referenc
 
 	private static _prefixLen(a: string, b: string): number {
 		let pos = 0;
-		while (pos < a.length && pos < b.length && a.charCodeAt(pos) === b.charCodeAt(pos)) {
+		while (
+			pos < a.length &&
+			pos < b.length &&
+			a.charCodeAt(pos) === b.charCodeAt(pos)
+		) {
 			pos += 1;
 		}
 		return pos;
@@ -189,12 +234,16 @@ export class ReferencesModel implements SymbolItemNavigation<FileItem | Referenc
 		return this._move(item, false) ?? item;
 	}
 
-	private _move(item: FileItem | ReferenceItem, fwd: boolean): ReferenceItem | undefined {
-
+	private _move(
+		item: FileItem | ReferenceItem,
+		fwd: boolean,
+	): ReferenceItem | undefined {
 		const delta = fwd ? +1 : -1;
 
 		const _move = (item: FileItem): FileItem => {
-			const idx = (this.items.indexOf(item) + delta + this.items.length) % this.items.length;
+			const idx =
+				(this.items.indexOf(item) + delta + this.items.length) %
+				this.items.length;
 			return this.items[idx];
 		};
 
@@ -218,9 +267,14 @@ export class ReferencesModel implements SymbolItemNavigation<FileItem | Referenc
 		}
 	}
 
-	getEditorHighlights(_item: FileItem | ReferenceItem, uri: vscode.Uri): vscode.Range[] | undefined {
-		const file = this.items.find(file => file.uri.toString() === uri.toString());
-		return file?.references.map(ref => ref.location.range);
+	getEditorHighlights(
+		_item: FileItem | ReferenceItem,
+		uri: vscode.Uri,
+	): vscode.Range[] | undefined {
+		const file = this.items.find(
+			(file) => file.uri.toString() === uri.toString(),
+		);
+		return file?.references.map((ref) => ref.location.range);
 	}
 
 	remove(item: FileItem | ReferenceItem) {
@@ -239,7 +293,7 @@ export class ReferencesModel implements SymbolItemNavigation<FileItem | Referenc
 	}
 
 	async asCopyText() {
-		let result = '';
+		let result = "";
 		for (const item of this.items) {
 			result += `${await item.asCopyText()}\n`;
 		}
@@ -255,15 +309,20 @@ export class ReferencesModel implements SymbolItemNavigation<FileItem | Referenc
 	}
 }
 
-class ReferencesTreeDataProvider implements vscode.TreeDataProvider<FileItem | ReferenceItem>{
-
+class ReferencesTreeDataProvider
+	implements vscode.TreeDataProvider<FileItem | ReferenceItem>
+{
 	private readonly _listener: vscode.Disposable;
-	private readonly _onDidChange = new vscode.EventEmitter<FileItem | ReferenceItem | undefined>();
+	private readonly _onDidChange = new vscode.EventEmitter<
+		FileItem | ReferenceItem | undefined
+	>();
 
 	readonly onDidChangeTreeData = this._onDidChange.event;
 
 	constructor(private readonly _model: ReferencesModel) {
-		this._listener = _model.onDidChangeTreeData(e => this._onDidChange.fire(undefined));
+		this._listener = _model.onDidChangeTreeData((e) =>
+			this._onDidChange.fire(undefined),
+		);
 	}
 
 	dispose(): void {
@@ -275,12 +334,11 @@ class ReferencesTreeDataProvider implements vscode.TreeDataProvider<FileItem | R
 		if (element instanceof FileItem) {
 			// files
 			const result = new vscode.TreeItem(element.uri);
-			result.contextValue = 'file-item';
+			result.contextValue = "file-item";
 			result.description = true;
 			result.iconPath = vscode.ThemeIcon.File;
 			result.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 			return result;
-
 		} else {
 			// references
 			const { range } = element.location;
@@ -289,19 +347,21 @@ class ReferencesTreeDataProvider implements vscode.TreeDataProvider<FileItem | R
 
 			const label: vscode.TreeItemLabel = {
 				label: before + inside + after,
-				highlights: [[before.length, before.length + inside.length]]
+				highlights: [[before.length, before.length + inside.length]],
 			};
 
 			const result = new vscode.TreeItem(label);
 			result.collapsibleState = vscode.TreeItemCollapsibleState.None;
-			result.contextValue = 'reference-item';
+			result.contextValue = "reference-item";
 			result.command = {
-				command: 'vscode.open',
-				title: 'Open Reference',
+				command: "vscode.open",
+				title: "Open Reference",
 				arguments: [
 					element.location.uri,
-					<vscode.TextDocumentShowOptions>{ selection: range.with({ end: range.start }) }
-				]
+					<vscode.TextDocumentShowOptions>{
+						selection: range.with({ end: range.start }),
+					},
+				],
 			};
 			return result;
 		}
@@ -323,12 +383,11 @@ class ReferencesTreeDataProvider implements vscode.TreeDataProvider<FileItem | R
 }
 
 export class FileItem {
-
 	constructor(
 		readonly uri: vscode.Uri,
 		readonly references: Array<ReferenceItem>,
-		readonly model: ReferencesModel
-	) { }
+		readonly model: ReferencesModel,
+	) {}
 
 	// --- adapter
 
@@ -346,17 +405,18 @@ export class FileItem {
 }
 
 export class ReferenceItem {
-
 	private _document: Thenable<vscode.TextDocument> | undefined;
 
 	constructor(
 		readonly location: vscode.Location,
 		readonly file: FileItem,
-	) { }
+	) {}
 
 	async getDocument(warmUpNext?: boolean) {
 		if (!this._document) {
-			this._document = vscode.workspace.openTextDocument(this.location.uri);
+			this._document = vscode.workspace.openTextDocument(
+				this.location.uri,
+			);
 		}
 		if (warmUpNext) {
 			// load next document once this document has been loaded

@@ -3,27 +3,26 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
 
 /**
- * This interface describes the shape for the references viewlet API. It consists 
- * of a single `setInput` function which must be called with a full implementation 
+ * This interface describes the shape for the references viewlet API. It consists
+ * of a single `setInput` function which must be called with a full implementation
  * of the `SymbolTreeInput`-interface. To acquire this API use the default mechanics, e.g:
- * 
+ *
  * ```ts
  * // get references viewlet API
  * const api = await vscode.extensions.getExtension<SymbolTree>('ms-vscode.references-view').activate();
- * 
+ *
  * // instantiate and set input which updates the view
  * const myInput: SymbolTreeInput<MyItems> = ...
  * api.setInput(myInput)
  * ```
  */
 export interface SymbolTree {
-
 	/**
-	 * Set the contents of the references viewlet. 
-	 * 
+	 * Set the contents of the references viewlet.
+	 *
 	 * @param input A symbol tree input object
 	 */
 	setInput(input: SymbolTreeInput<unknown>): void;
@@ -31,11 +30,10 @@ export interface SymbolTree {
 
 /**
  * A symbol tree input is the entry point for populating the references viewlet.
- * Inputs must be anchored at a code location, they must have a title, and they 
+ * Inputs must be anchored at a code location, they must have a title, and they
  * must resolve to a model.
  */
 export interface SymbolTreeInput<T> {
-
 	/**
 	 * The value of the `reference-list.source` context key. Use this to control
 	 * input dependent commands.
@@ -54,17 +52,17 @@ export interface SymbolTreeInput<T> {
 	readonly location: vscode.Location;
 
 	/**
-	 * Resolve this input to a model that contains the actual data. When there are no result 
+	 * Resolve this input to a model that contains the actual data. When there are no result
 	 * than `undefined` or `null` should be returned.
 	 */
 	resolve(): vscode.ProviderResult<SymbolTreeModel<T>>;
 
 	/**
 	 * This function is called when re-running from history. The symbols tree has tracked
-	 * the original location of this input and that is now passed to this input. The 
+	 * the original location of this input and that is now passed to this input. The
 	 * implementation of this function should return a clone where the `location`-property
 	 * uses the provided `location`
-	 * 
+	 *
 	 * @param location The location at which the new input should be anchored.
 	 * @returns A new input which location is anchored at the position.
 	 */
@@ -75,7 +73,6 @@ export interface SymbolTreeInput<T> {
  * A symbol tree model which is used to populate the symbols tree.
  */
 export interface SymbolTreeModel<T> {
-
 	/**
 	 * A tree data provider which is used to populate the symbols tree.
 	 */
@@ -94,7 +91,7 @@ export interface SymbolTreeModel<T> {
 	navigation?: SymbolItemNavigation<T>;
 
 	/**
-	 * Optional support for editor highlights. WHen implemented, the editor will highlight 
+	 * Optional support for editor highlights. WHen implemented, the editor will highlight
 	 * symbol ranges in the source code.
 	 */
 	highlights?: SymbolItemEditorHighlights<T>;
@@ -144,6 +141,5 @@ export interface SymbolItemEditorHighlights<T> {
 }
 
 export interface SymbolItemDragAndDrop<T> {
-
 	getDragUri(item: T): vscode.Uri | undefined;
 }
