@@ -30,6 +30,7 @@ export class ReferencesTreeInput
 
 	async resolve() {
 		let model: ReferencesModel;
+
 		if (this._result) {
 			model = new ReferencesModel(this._result);
 		} else {
@@ -81,6 +82,7 @@ export class ReferencesModel
 
 	constructor(locations: vscode.Location[] | vscode.LocationLink[]) {
 		let last: FileItem | undefined;
+
 		for (const item of locations.sort(ReferencesModel._compareLocations)) {
 			const loc =
 				item instanceof vscode.Location
@@ -104,7 +106,9 @@ export class ReferencesModel
 		b: vscode.Uri,
 	): number {
 		let aStr = a.with({ fragment: "" }).toString();
+
 		let bStr = b.with({ fragment: "" }).toString();
+
 		if (aStr < bStr) {
 			return -1;
 		} else if (aStr > bStr) {
@@ -118,7 +122,9 @@ export class ReferencesModel
 		b: vscode.Location | vscode.LocationLink,
 	): number {
 		let aUri = a instanceof vscode.Location ? a.uri : a.targetUri;
+
 		let bUri = b instanceof vscode.Location ? b.uri : b.targetUri;
+
 		if (aUri.toString() < bUri.toString()) {
 			return -1;
 		} else if (aUri.toString() > bUri.toString()) {
@@ -126,7 +132,9 @@ export class ReferencesModel
 		}
 
 		let aRange = a instanceof vscode.Location ? a.range : a.targetRange;
+
 		let bRange = b instanceof vscode.Location ? b.range : b.targetRange;
+
 		if (aRange.start.isBefore(bRange.start)) {
 			return -1;
 		} else if (aRange.start.isAfter(bRange.start)) {
@@ -146,7 +154,9 @@ export class ReferencesModel
 			(prev, cur) => prev + cur.references.length,
 			0,
 		);
+
 		const files = this.items.length;
+
 		if (total === 1 && files === 1) {
 			return `${total} result in ${files} file`;
 		} else if (total === 1) {
@@ -180,6 +190,7 @@ export class ReferencesModel
 				}
 				// (2) pick the first item after or last before the request position
 				let lastBefore: ReferenceItem | undefined;
+
 				for (const ref of item.references) {
 					if (ref.location.range.end.isAfter(position)) {
 						return ref;
@@ -196,6 +207,7 @@ export class ReferencesModel
 
 		// (3) pick the file with the longest common prefix
 		let best = 0;
+
 		let bestValue = ReferencesModel._prefixLen(
 			this.items[best].toString(),
 			uri.toString(),
@@ -206,6 +218,7 @@ export class ReferencesModel
 				this.items[i].uri.toString(),
 				uri.toString(),
 			);
+
 			if (value > bestValue) {
 				best = i;
 			}
@@ -216,6 +229,7 @@ export class ReferencesModel
 
 	private static _prefixLen(a: string, b: string): number {
 		let pos = 0;
+
 		while (
 			pos < a.length &&
 			pos < b.length &&
@@ -244,6 +258,7 @@ export class ReferencesModel
 			const idx =
 				(this.items.indexOf(item) + delta + this.items.length) %
 				this.items.length;
+
 			return this.items[idx];
 		};
 
@@ -257,6 +272,7 @@ export class ReferencesModel
 
 		if (item instanceof ReferenceItem) {
 			const idx = item.file.references.indexOf(item) + delta;
+
 			if (idx < 0) {
 				return tail(_move(item.file).references);
 			} else if (idx >= item.file.references.length) {
@@ -274,6 +290,7 @@ export class ReferencesModel
 		const file = this.items.find(
 			(file) => file.uri.toString() === uri.toString(),
 		);
+
 		return file?.references.map((ref) => ref.location.range);
 	}
 
@@ -283,6 +300,7 @@ export class ReferencesModel
 			this._onDidChange.fire(undefined);
 		} else {
 			del(item.file.references, item);
+
 			if (item.file.references.length === 0) {
 				del(this.items, item.file);
 				this._onDidChange.fire(undefined);
@@ -294,6 +312,7 @@ export class ReferencesModel
 
 	async asCopyText() {
 		let result = "";
+
 		for (const item of this.items) {
 			result += `${await item.asCopyText()}\n`;
 		}
@@ -338,11 +357,14 @@ class ReferencesTreeDataProvider
 			result.description = true;
 			result.iconPath = vscode.ThemeIcon.File;
 			result.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
+
 			return result;
 		} else {
 			// references
 			const { range } = element.location;
+
 			const doc = await element.getDocument(true);
+
 			const { before, inside, after } = getPreviewChunks(doc, range);
 
 			const label: vscode.TreeItemLabel = {
@@ -363,6 +385,7 @@ class ReferencesTreeDataProvider
 					},
 				],
 			};
+
 			return result;
 		}
 	}
@@ -397,6 +420,7 @@ export class FileItem {
 
 	async asCopyText() {
 		let result = `${vscode.workspace.asRelativePath(this.uri)}\n`;
+
 		for (let ref of this.references) {
 			result += `  ${await ref.asCopyText()}\n`;
 		}
@@ -421,6 +445,7 @@ export class ReferenceItem {
 		if (warmUpNext) {
 			// load next document once this document has been loaded
 			const next = this.file.model.next(this.file);
+
 			if (next instanceof FileItem && next !== this.file) {
 				vscode.workspace.openTextDocument(next.uri);
 			} else if (next instanceof ReferenceItem) {
@@ -438,7 +463,9 @@ export class ReferenceItem {
 
 	async asCopyText() {
 		let doc = await this.getDocument();
+
 		let chunks = getPreviewChunks(doc, this.location.range, 21, false);
+
 		return `${this.location.range.start.line + 1}, ${this.location.range.start.character + 1}: ${chunks.before + chunks.inside + chunks.after}`;
 	}
 }

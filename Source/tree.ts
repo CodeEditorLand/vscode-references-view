@@ -59,6 +59,7 @@ export class SymbolsTree {
 			))
 		) {
 			this.clearInput();
+
 			return;
 		}
 
@@ -85,12 +86,14 @@ export class SymbolsTree {
 		this._dnd.update(modelPromise.then((model) => model?.dnd));
 
 		const model = await modelPromise;
+
 		if (this._input !== input) {
 			return;
 		}
 
 		if (!model) {
 			this.clearInput();
+
 			return;
 		}
 
@@ -105,6 +108,7 @@ export class SymbolsTree {
 			input.location.uri,
 			input.location.range.start,
 		);
+
 		if (selection && this._tree.visible) {
 			await this._tree.reveal(selection, {
 				select: true,
@@ -117,6 +121,7 @@ export class SymbolsTree {
 
 		// editor highlights
 		let highlights: EditorHighlights<unknown> | undefined;
+
 		if (model.highlights) {
 			highlights = new EditorHighlights(this._tree, model.highlights);
 			disposables.push(highlights);
@@ -191,17 +196,21 @@ class TreeDataProviderDelegate implements vscode.TreeDataProvider<undefined> {
 
 	async getTreeItem(element: unknown) {
 		this._assertProvider();
+
 		return (await this.provider).getTreeItem(element);
 	}
 
 	async getChildren(parent?: unknown | undefined) {
 		this._assertProvider();
+
 		return (await this.provider).getChildren(parent);
 	}
 
 	async getParent(element: unknown) {
 		this._assertProvider();
+
 		const provider = await this.provider;
+
 		return provider.getParent ? provider.getParent(element) : undefined;
 	}
 
@@ -229,8 +238,10 @@ class TreeDndDelegate implements vscode.TreeDragAndDropController<undefined> {
 	handleDrag(source: undefined[], data: vscode.DataTransfer) {
 		if (this._delegate) {
 			const urls: string[] = [];
+
 			for (let item of source) {
 				const uri = this._delegate.getDragUri(item);
+
 				if (uri) {
 					urls.push(uri.toString());
 				}
@@ -298,6 +309,7 @@ class TreeInputHistory implements vscode.TreeDataProvider<HistoryItem> {
 			),
 			vscode.commands.registerCommand("references-view.refresh", () => {
 				const item = Array.from(this._inputs.values()).pop();
+
 				if (item) {
 					this._reRunHistoryItem(item);
 				}
@@ -309,6 +321,7 @@ class TreeInputHistory implements vscode.TreeDataProvider<HistoryItem> {
 						const position =
 							item.anchor.guessedTrackedPosition() ??
 							item.input.location.range.start;
+
 						return vscode.commands.executeCommand(
 							"vscode.open",
 							item.input.location.uri,
@@ -324,6 +337,7 @@ class TreeInputHistory implements vscode.TreeDataProvider<HistoryItem> {
 						item: HistoryItem;
 					}
 					const entries = await this.getChildren();
+
 					const picks = entries.map(
 						(item) =>
 							<HistoryPick>{
@@ -332,9 +346,11 @@ class TreeInputHistory implements vscode.TreeDataProvider<HistoryItem> {
 								item,
 							},
 					);
+
 					const pick = await vscode.window.showQuickPick(picks, {
 						placeHolder: "Select previous reference search",
 					});
+
 					if (pick) {
 						this._reRunHistoryItem(pick.item);
 					}
@@ -350,7 +366,9 @@ class TreeInputHistory implements vscode.TreeDataProvider<HistoryItem> {
 
 	private _reRunHistoryItem(item: HistoryItem): void {
 		this._inputs.delete(item.key);
+
 		const newPosition = item.anchor.guessedTrackedPosition();
+
 		let newInput = item.input;
 		// create a new input when having a tracked position which is
 		// different than the original position.
@@ -369,9 +387,11 @@ class TreeInputHistory implements vscode.TreeDataProvider<HistoryItem> {
 		const doc = await vscode.workspace.openTextDocument(input.location.uri);
 
 		const anchor = new WordAnchor(doc, input.location.range.start);
+
 		const range =
 			doc.getWordRangeAtPosition(input.location.range.start) ??
 			doc.getWordRangeAtPosition(input.location.range.start, /[^\s]+/);
+
 		const word = range ? doc.getText(range) : "???";
 
 		const item = new HistoryItem(
@@ -412,6 +432,7 @@ class TreeInputHistory implements vscode.TreeDataProvider<HistoryItem> {
 		};
 		result.collapsibleState = vscode.TreeItemCollapsibleState.None;
 		result.contextValue = "history-item";
+
 		return result;
 	}
 

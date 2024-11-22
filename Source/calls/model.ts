@@ -33,7 +33,9 @@ export class CallsTreeInput implements SymbolTreeInput<CallItem> {
 				this.location.range.start,
 			),
 		);
+
 		const model = new CallsModel(this.direction, items ?? []);
+
 		const provider = new CallItemDataProvider(model);
 
 		if (model.roots.length === 0) {
@@ -104,6 +106,7 @@ class CallsModel
 			const calls = await vscode.commands.executeCommand<
 				vscode.CallHierarchyIncomingCall[]
 			>("vscode.provideIncomingCalls", call.item);
+
 			return calls
 				? calls.map(
 						(item) =>
@@ -125,6 +128,7 @@ class CallsModel
 			const calls = await vscode.commands.executeCommand<
 				vscode.CallHierarchyOutgoingCall[]
 			>("vscode.provideOutgoingCalls", call.item);
+
 			return calls
 				? calls.map(
 						(item) =>
@@ -181,9 +185,12 @@ class CallsModel
 		const array = this.roots.includes(item)
 			? this.roots
 			: item.parent?.children;
+
 		if (array?.length) {
 			const idx = array.indexOf(item);
+
 			const delta = fwd ? 1 : -1;
+
 			return array[idx + delta + (array.length % array.length)];
 		}
 	}
@@ -212,7 +219,9 @@ class CallsModel
 
 	remove(item: CallItem) {
 		const isInRoot = this.roots.includes(item);
+
 		const siblings = isInRoot ? this.roots : item.parent?.children;
+
 		if (siblings) {
 			del(siblings, item);
 			this._onDidChange.fire(this);
@@ -258,6 +267,7 @@ class CallItemDataProvider implements vscode.TreeDataProvider<CallItem> {
 			],
 		};
 		item.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
+
 		return item;
 	}
 

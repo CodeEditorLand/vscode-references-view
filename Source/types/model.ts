@@ -35,7 +35,9 @@ export class TypesTreeInput implements SymbolTreeInput<TypeItem> {
 				this.location.range.start,
 			),
 		);
+
 		const model = new TypesModel(this.direction, items ?? []);
+
 		const provider = new TypeItemDataProvider(model);
 
 		if (model.roots.length === 0) {
@@ -103,6 +105,7 @@ class TypesModel
 			const types = await vscode.commands.executeCommand<
 				vscode.TypeHierarchyItem[]
 			>("vscode.provideSupertypes", currentType.item);
+
 			return types
 				? types.map((item) => new TypeItem(this, item, currentType))
 				: [];
@@ -110,6 +113,7 @@ class TypesModel
 			const types = await vscode.commands.executeCommand<
 				vscode.TypeHierarchyItem[]
 			>("vscode.provideSubtypes", currentType.item);
+
 			return types
 				? types.map((item) => new TypeItem(this, item, currentType))
 				: [];
@@ -161,9 +165,12 @@ class TypesModel
 		const array = this.roots.includes(item)
 			? this.roots
 			: item.parent?.children;
+
 		if (array?.length) {
 			const idx = array.indexOf(item);
+
 			const delta = fwd ? 1 : -1;
+
 			return array[idx + delta + (array.length % array.length)];
 		}
 	}
@@ -181,7 +188,9 @@ class TypesModel
 
 	remove(item: TypeItem) {
 		const isInRoot = this.roots.includes(item);
+
 		const siblings = isInRoot ? this.roots : item.parent?.children;
+
 		if (siblings) {
 			del(siblings, item);
 			this._onDidChange.fire(this);
@@ -224,6 +233,7 @@ class TypeItemDataProvider implements vscode.TreeDataProvider<TypeItem> {
 			],
 		};
 		item.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
+
 		return item;
 	}
 

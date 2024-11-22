@@ -70,7 +70,9 @@ export function register(
 	// --- references.preferredLocation setting
 
 	let showReferencesDisposable: vscode.Disposable | undefined;
+
 	const config = "references.preferredLocation";
+
 	function updateShowReferences(event?: vscode.ConfigurationChangeEvent) {
 		if (event && !event.affectsConfiguration(config)) {
 			return;
@@ -128,6 +130,7 @@ async function copyCommand(
 	item: ReferencesModel | ReferenceItem | FileItem | unknown,
 ) {
 	let val: string | undefined;
+
 	if (item instanceof ReferencesModel) {
 		val = await item.asCopyText();
 	} else if (item instanceof ReferenceItem) {

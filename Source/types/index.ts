@@ -38,7 +38,9 @@ export function register(
 		direction.value = value;
 
 		let newInput: TypesTreeInput | undefined;
+
 		const oldInput = tree.getInput();
+
 		if (anchor instanceof TypeItem) {
 			newInput = new TypesTreeInput(
 				new vscode.Location(
@@ -103,6 +105,7 @@ class RichTypesDirection {
 		private _value: TypeHierarchyDirection = TypeHierarchyDirection.Subtypes,
 	) {
 		const raw = _mem.get<TypeHierarchyDirection>(RichTypesDirection._key);
+
 		if (typeof raw === "string") {
 			this.value = raw;
 		} else {

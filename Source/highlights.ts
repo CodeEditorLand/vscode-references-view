@@ -44,6 +44,7 @@ export class EditorHighlights<T> {
 
 	dispose() {
 		vscode.Disposable.from(...this.disposables).dispose();
+
 		for (const editor of vscode.window.visibleTextEditors) {
 			editor.setDecorations(this._decorationType, []);
 		}
@@ -51,6 +52,7 @@ export class EditorHighlights<T> {
 
 	private _show(): void {
 		const { activeTextEditor: editor } = vscode.window;
+
 		if (!editor || !editor.viewColumn) {
 			return;
 		}
@@ -58,6 +60,7 @@ export class EditorHighlights<T> {
 			return;
 		}
 		const [anchor] = this._view.selection;
+
 		if (!anchor) {
 			return;
 		}
@@ -65,6 +68,7 @@ export class EditorHighlights<T> {
 			anchor,
 			editor.document.uri,
 		);
+
 		if (ranges) {
 			editor.setDecorations(this._decorationType, ranges);
 		}

@@ -41,6 +41,7 @@ export class Navigation {
 			return undefined;
 		}
 		const [sel] = this._view.selection;
+
 		if (sel) {
 			return sel;
 		}
@@ -65,11 +66,14 @@ export class Navigation {
 			return;
 		}
 		const item = this._anchor();
+
 		if (!item) {
 			return;
 		}
 		const newItem = this._delegate.previous(item);
+
 		const newLocation = this._delegate.location(newItem);
+
 		if (newLocation) {
 			this._view.reveal(newItem, { select: true, focus: true });
 			this._open(newLocation, preserveFocus);
@@ -81,11 +85,14 @@ export class Navigation {
 			return;
 		}
 		const item = this._anchor();
+
 		if (!item) {
 			return;
 		}
 		const newItem = this._delegate.next(item);
+
 		const newLocation = this._delegate.location(newItem);
+
 		if (newLocation) {
 			this._view.reveal(newItem, { select: true, focus: true });
 			this._open(newLocation, preserveFocus);

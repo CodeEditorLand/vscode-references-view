@@ -38,7 +38,9 @@ export function register(
 		direction.value = value;
 
 		let newInput: CallsTreeInput | undefined;
+
 		const oldInput = tree.getInput();
+
 		if (anchor instanceof CallItem) {
 			newInput = new CallsTreeInput(
 				new vscode.Location(
@@ -95,6 +97,7 @@ class RichCallsDirection {
 		private _value: CallsDirection = CallsDirection.Outgoing,
 	) {
 		const raw = _mem.get<number>(RichCallsDirection._key);
+
 		if (typeof raw === "number" && raw >= 0 && raw <= 1) {
 			this.value = raw;
 		} else {
