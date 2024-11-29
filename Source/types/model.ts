@@ -15,6 +15,7 @@ import { asResourceUrl, del, getThemeIcon, tail } from "../utils";
 
 export class TypesTreeInput implements SymbolTreeInput<TypeItem> {
 	readonly title: string;
+
 	readonly contextValue: string = "typeHierarchy";
 
 	constructor(
@@ -91,6 +92,7 @@ class TypesModel
 	readonly roots: TypeItem[] = [];
 
 	private readonly _onDidChange = new vscode.EventEmitter<TypesModel>();
+
 	readonly onDidChange = this._onDidChange.event;
 
 	constructor(
@@ -124,6 +126,7 @@ class TypesModel
 		if (!item.children) {
 			item.children = await this._resolveTypes(item);
 		}
+
 		return item.children;
 	}
 
@@ -162,6 +165,7 @@ class TypesModel
 		if (item.children?.length) {
 			return fwd ? item.children[0] : tail(item.children);
 		}
+
 		const array = this.roots.includes(item)
 			? this.roots
 			: item.parent?.children;
@@ -193,6 +197,7 @@ class TypesModel
 
 		if (siblings) {
 			del(siblings, item);
+
 			this._onDidChange.fire(this);
 		}
 	}
@@ -200,6 +205,7 @@ class TypesModel
 
 class TypeItemDataProvider implements vscode.TreeDataProvider<TypeItem> {
 	private readonly _emitter = new vscode.EventEmitter<TypeItem | undefined>();
+
 	readonly onDidChangeTreeData = this._emitter.event;
 
 	private readonly _modelListener: vscode.Disposable;
@@ -212,14 +218,19 @@ class TypeItemDataProvider implements vscode.TreeDataProvider<TypeItem> {
 
 	dispose(): void {
 		this._emitter.dispose();
+
 		this._modelListener.dispose();
 	}
 
 	getTreeItem(element: TypeItem): vscode.TreeItem {
 		const item = new vscode.TreeItem(element.item.name);
+
 		item.description = element.item.detail;
+
 		item.contextValue = "type-item";
+
 		item.iconPath = getThemeIcon(element.item.kind);
+
 		item.command = {
 			command: "vscode.open",
 			title: "Open Type",
@@ -232,6 +243,7 @@ class TypeItemDataProvider implements vscode.TreeDataProvider<TypeItem> {
 				},
 			],
 		};
+
 		item.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 
 		return item;

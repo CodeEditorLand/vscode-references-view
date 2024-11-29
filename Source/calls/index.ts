@@ -27,6 +27,7 @@ export function register(
 				),
 				direction.value,
 			);
+
 			tree.setInput(input);
 		}
 	}
@@ -52,6 +53,7 @@ export function register(
 		} else if (oldInput instanceof CallsTreeInput) {
 			newInput = new CallsTreeInput(oldInput.location, direction.value);
 		}
+
 		if (newInput) {
 			tree.setInput(newInput);
 		}
@@ -111,11 +113,13 @@ class RichCallsDirection {
 
 	set value(value: CallsDirection) {
 		this._value = value;
+
 		this._ctxMode.set(
 			this._value === CallsDirection.Incoming
 				? "showIncoming"
 				: "showOutgoing",
 		);
+
 		this._mem.update(RichCallsDirection._key, value);
 	}
 }

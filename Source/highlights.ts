@@ -21,6 +21,7 @@ export class EditorHighlights<T> {
 		});
 
 	private readonly disposables: vscode.Disposable[] = [];
+
 	private readonly _ignore = new Set<string>();
 
 	constructor(
@@ -39,6 +40,7 @@ export class EditorHighlights<T> {
 			),
 			_view.onDidChangeSelection(() => _view.visible && this.update()),
 		);
+
 		this._show();
 	}
 
@@ -56,14 +58,17 @@ export class EditorHighlights<T> {
 		if (!editor || !editor.viewColumn) {
 			return;
 		}
+
 		if (this._ignore.has(editor.document.uri.toString())) {
 			return;
 		}
+
 		const [anchor] = this._view.selection;
 
 		if (!anchor) {
 			return;
 		}
+
 		const ranges = this._delegate.getEditorHighlights(
 			anchor,
 			editor.document.uri,
@@ -82,6 +87,7 @@ export class EditorHighlights<T> {
 
 	update(): void {
 		this._hide();
+
 		this._show();
 	}
 }

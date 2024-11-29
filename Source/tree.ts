@@ -16,20 +16,27 @@ export class SymbolsTree {
 	private readonly _ctxIsActive = new ContextKey<boolean>(
 		"reference-list.isActive",
 	);
+
 	private readonly _ctxHasResult = new ContextKey<boolean>(
 		"reference-list.hasResult",
 	);
+
 	private readonly _ctxInputSource = new ContextKey<string>(
 		"reference-list.source",
 	);
 
 	private readonly _history = new TreeInputHistory(this);
+
 	private readonly _provider = new TreeDataProviderDelegate();
+
 	private readonly _dnd = new TreeDndDelegate();
+
 	private readonly _tree: vscode.TreeView<unknown>;
+
 	private readonly _navigation: Navigation;
 
 	private _input?: SymbolTreeInput<unknown>;
+
 	private _sessionDisposable?: vscode.Disposable;
 
 	constructor() {
@@ -38,12 +45,15 @@ export class SymbolsTree {
 			showCollapseAll: true,
 			dragAndDropController: this._dnd,
 		});
+
 		this._navigation = new Navigation(this._tree);
 	}
 
 	dispose(): void {
 		this._history.dispose();
+
 		this._tree.dispose();
+
 		this._sessionDisposable?.dispose();
 	}
 
@@ -64,17 +74,23 @@ export class SymbolsTree {
 		}
 
 		this._ctxInputSource.set(input.contextValue);
+
 		this._ctxIsActive.set(true);
+
 		this._ctxHasResult.set(true);
+
 		vscode.commands.executeCommand(`${this.viewId}.focus`);
 
 		const newInputKind =
 			!this._input ||
 			Object.getPrototypeOf(this._input) !== Object.getPrototypeOf(input);
+
 		this._input = input;
+
 		this._sessionDisposable?.dispose();
 
 		this._tree.title = input.title;
+
 		this._tree.message = newInputKind ? undefined : this._tree.message;
 
 		const modelPromise = Promise.resolve(input.resolve());
@@ -83,6 +99,7 @@ export class SymbolsTree {
 		this._provider.update(
 			modelPromise.then((model) => model?.provider ?? this._history),
 		);
+
 		this._dnd.update(modelPromise.then((model) => model?.dnd));
 
 		const model = await modelPromise;
@@ -98,6 +115,7 @@ export class SymbolsTree {
 		}
 
 		this._history.add(input);
+
 		this._tree.message = model.message;
 
 		// navigation
@@ -124,6 +142,7 @@ export class SymbolsTree {
 
 		if (model.highlights) {
 			highlights = new EditorHighlights(this._tree, model.highlights);
+
 			disposables.push(highlights);
 		}
 
@@ -132,27 +151,37 @@ export class SymbolsTree {
 			disposables.push(
 				model.provider.onDidChangeTreeData(() => {
 					this._tree.title = input.title;
+
 					this._tree.message = model.message;
+
 					highlights?.update();
 				}),
 			);
 		}
+
 		if (typeof model.dispose === "function") {
 			disposables.push(new vscode.Disposable(() => model.dispose!()));
 		}
+
 		this._sessionDisposable = vscode.Disposable.from(...disposables);
 	}
 
 	clearInput(): void {
 		this._sessionDisposable?.dispose();
+
 		this._input = undefined;
+
 		this._ctxHasResult.set(false);
+
 		this._ctxInputSource.reset();
+
 		this._tree.title = "References";
+
 		this._tree.message =
 			this._history.size === 0
 				? "No results."
 				: "No results. Try running a previous search again:";
+
 		this._provider.update(Promise.resolve(this._history));
 	}
 }
@@ -167,12 +196,14 @@ class TreeDataProviderDelegate implements vscode.TreeDataProvider<undefined> {
 	provider?: Promise<vscode.TreeDataProvider<any>>;
 
 	private _sessionDispoables?: vscode.Disposable;
+
 	private _onDidChange = new vscode.EventEmitter<any>();
 
 	readonly onDidChangeTreeData = this._onDidChange.event;
 
 	update(provider: Promise<vscode.TreeDataProvider<any>>) {
 		this._sessionDispoables?.dispose();
+
 		this._sessionDispoables = undefined;
 
 		this._onDidChange.fire(undefined);
@@ -190,6 +221,7 @@ class TreeDataProviderDelegate implements vscode.TreeDataProvider<undefined> {
 			})
 			.catch((err) => {
 				this.provider = undefined;
+
 				console.error(err);
 			});
 	}
@@ -232,6 +264,7 @@ class TreeDndDelegate implements vscode.TreeDragAndDropController<undefined> {
 
 	update(delegate: Promise<SymbolItemDragAndDrop<unknown> | undefined>) {
 		this._delegate = undefined;
+
 		delegate.then((value) => (this._delegate = value));
 	}
 
@@ -246,6 +279,7 @@ class TreeDndDelegate implements vscode.TreeDragAndDropController<undefined> {
 					urls.push(uri.toString());
 				}
 			}
+
 			if (urls.length > 0) {
 				data.set(
 					"text/uri-list",
@@ -279,12 +313,15 @@ class TreeInputHistory implements vscode.TreeDataProvider<HistoryItem> {
 	private readonly _onDidChangeTreeData = new vscode.EventEmitter<
 		HistoryItem | undefined
 	>();
+
 	readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
 	private readonly _disposables: vscode.Disposable[] = [];
+
 	private readonly _ctxHasHistory = new ContextKey<boolean>(
 		"reference-list.hasHistory",
 	);
+
 	private readonly _inputs = new Map<string, HistoryItem>();
 
 	constructor(private readonly _tree: SymbolsTree) {
@@ -296,6 +333,7 @@ class TreeInputHistory implements vscode.TreeDataProvider<HistoryItem> {
 				"references-view.clearHistory",
 				() => {
 					this.clear();
+
 					_tree.clearInput();
 				},
 			),
@@ -336,6 +374,7 @@ class TreeInputHistory implements vscode.TreeDataProvider<HistoryItem> {
 					interface HistoryPick extends vscode.QuickPickItem {
 						item: HistoryItem;
 					}
+
 					const entries = await this.getChildren();
 
 					const picks = entries.map(
@@ -361,6 +400,7 @@ class TreeInputHistory implements vscode.TreeDataProvider<HistoryItem> {
 
 	dispose(): void {
 		vscode.Disposable.from(...this._disposables).dispose();
+
 		this._onDidChangeTreeData.dispose();
 	}
 
@@ -380,6 +420,7 @@ class TreeInputHistory implements vscode.TreeDataProvider<HistoryItem> {
 				new vscode.Location(item.input.location.uri, newPosition),
 			);
 		}
+
 		this._tree.setInput(newInput);
 	}
 
@@ -406,13 +447,17 @@ class TreeInputHistory implements vscode.TreeDataProvider<HistoryItem> {
 		);
 		// use filo-ordering of native maps
 		this._inputs.delete(item.key);
+
 		this._inputs.set(item.key, item);
+
 		this._ctxHasHistory.set(true);
 	}
 
 	clear(): void {
 		this._inputs.clear();
+
 		this._ctxHasHistory.set(false);
+
 		this._onDidChangeTreeData.fire(undefined);
 	}
 
@@ -424,13 +469,17 @@ class TreeInputHistory implements vscode.TreeDataProvider<HistoryItem> {
 
 	getTreeItem(item: HistoryItem): vscode.TreeItem {
 		const result = new vscode.TreeItem(item.word);
+
 		result.description = item.description;
+
 		result.command = {
 			command: "_references-view.showHistoryItem",
 			arguments: [item],
 			title: "Rerun",
 		};
+
 		result.collapsibleState = vscode.TreeItemCollapsibleState.None;
+
 		result.contextValue = "history-item";
 
 		return result;

@@ -15,6 +15,7 @@ import { asResourceUrl, del, getThemeIcon, tail } from "../utils";
 
 export class CallsTreeInput implements SymbolTreeInput<CallItem> {
 	readonly title: string;
+
 	readonly contextValue: string = "callHierarchy";
 
 	constructor(
@@ -90,6 +91,7 @@ class CallsModel
 	readonly roots: CallItem[] = [];
 
 	private readonly _onDidChange = new vscode.EventEmitter<CallsModel>();
+
 	readonly onDidChange = this._onDidChange.event;
 
 	constructor(
@@ -153,6 +155,7 @@ class CallsModel
 		if (!call.children) {
 			call.children = await this._resolveCalls(call);
 		}
+
 		return call.children;
 	}
 
@@ -182,6 +185,7 @@ class CallsModel
 		if (item.children?.length) {
 			return fwd ? item.children[0] : tail(item.children);
 		}
+
 		const array = this.roots.includes(item)
 			? this.roots
 			: item.parent?.children;
@@ -212,6 +216,7 @@ class CallsModel
 				? [item.item.selectionRange]
 				: undefined;
 		}
+
 		return item.locations
 			.filter((loc) => loc.uri.toString() === uri.toString())
 			.map((loc) => loc.range);
@@ -224,6 +229,7 @@ class CallsModel
 
 		if (siblings) {
 			del(siblings, item);
+
 			this._onDidChange.fire(this);
 		}
 	}
@@ -231,6 +237,7 @@ class CallsModel
 
 class CallItemDataProvider implements vscode.TreeDataProvider<CallItem> {
 	private readonly _emitter = new vscode.EventEmitter<CallItem | undefined>();
+
 	readonly onDidChangeTreeData = this._emitter.event;
 
 	private readonly _modelListener: vscode.Disposable;
@@ -243,17 +250,23 @@ class CallItemDataProvider implements vscode.TreeDataProvider<CallItem> {
 
 	dispose(): void {
 		this._emitter.dispose();
+
 		this._modelListener.dispose();
 	}
 
 	getTreeItem(element: CallItem): vscode.TreeItem {
 		const item = new vscode.TreeItem(element.item.name);
+
 		item.description = element.item.detail;
+
 		item.tooltip = item.label
 			? `${item.label} - ${element.item.detail}`
 			: element.item.detail;
+
 		item.contextValue = "call-item";
+
 		item.iconPath = getThemeIcon(element.item.kind);
+
 		item.command = {
 			command: "vscode.open",
 			title: "Open Call",
@@ -266,6 +279,7 @@ class CallItemDataProvider implements vscode.TreeDataProvider<CallItem> {
 				},
 			],
 		};
+
 		item.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 
 		return item;

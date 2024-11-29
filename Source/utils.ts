@@ -37,6 +37,7 @@ export async function isValidRequestPosition(
 	if (!range) {
 		range = doc.getWordRangeAtPosition(position, /[^\s]+/);
 	}
+
 	return Boolean(range);
 }
 
@@ -67,8 +68,10 @@ export function getPreviewChunks(
 
 	if (trim) {
 		before = before.replace(/^\s*/g, "");
+
 		after = after.replace(/\s*$/g, "");
 	}
+
 	return { before, inside, after };
 }
 
@@ -90,6 +93,7 @@ export class ContextKey<V> {
 
 export class WordAnchor {
 	private readonly _version: number;
+
 	private readonly _word: string | undefined;
 
 	constructor(
@@ -97,6 +101,7 @@ export class WordAnchor {
 		private readonly _position: vscode.Position,
 	) {
 		this._version = _doc.version;
+
 		this._word = this._getAnchorWord(_doc, _position);
 	}
 
@@ -152,6 +157,7 @@ export class WordAnchor {
 					return new vscode.Position(line, ch);
 				}
 			}
+
 			i += 1;
 			// nth line up
 			line = startLine - i;

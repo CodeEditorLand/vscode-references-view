@@ -10,6 +10,7 @@ import { ContextKey } from "./utils";
 
 export class Navigation {
 	private readonly _disposables: vscode.Disposable[] = [];
+
 	private readonly _ctxCanNavigate = new ContextKey<boolean>(
 		"references-view.canNavigate",
 	);
@@ -33,6 +34,7 @@ export class Navigation {
 
 	update(delegate: SymbolItemNavigation<unknown> | undefined) {
 		this._delegate = delegate;
+
 		this._ctxCanNavigate.set(Boolean(this._delegate));
 	}
 
@@ -40,14 +42,17 @@ export class Navigation {
 		if (!this._delegate) {
 			return undefined;
 		}
+
 		const [sel] = this._view.selection;
 
 		if (sel) {
 			return sel;
 		}
+
 		if (!vscode.window.activeTextEditor) {
 			return undefined;
 		}
+
 		return this._delegate.nearest(
 			vscode.window.activeTextEditor.document.uri,
 			vscode.window.activeTextEditor.selection.active,
@@ -65,17 +70,20 @@ export class Navigation {
 		if (!this._delegate) {
 			return;
 		}
+
 		const item = this._anchor();
 
 		if (!item) {
 			return;
 		}
+
 		const newItem = this._delegate.previous(item);
 
 		const newLocation = this._delegate.location(newItem);
 
 		if (newLocation) {
 			this._view.reveal(newItem, { select: true, focus: true });
+
 			this._open(newLocation, preserveFocus);
 		}
 	}
@@ -84,17 +92,20 @@ export class Navigation {
 		if (!this._delegate) {
 			return;
 		}
+
 		const item = this._anchor();
 
 		if (!item) {
 			return;
 		}
+
 		const newItem = this._delegate.next(item);
 
 		const newLocation = this._delegate.location(newItem);
 
 		if (newLocation) {
 			this._view.reveal(newItem, { select: true, focus: true });
+
 			this._open(newLocation, preserveFocus);
 		}
 	}

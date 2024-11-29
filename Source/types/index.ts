@@ -27,6 +27,7 @@ export function register(
 				),
 				direction.value,
 			);
+
 			tree.setInput(input);
 		}
 	}
@@ -54,6 +55,7 @@ export function register(
 		} else if (oldInput instanceof TypesTreeInput) {
 			newInput = new TypesTreeInput(oldInput.location, direction.value);
 		}
+
 		if (newInput) {
 			tree.setInput(newInput);
 		}
@@ -119,7 +121,9 @@ class RichTypesDirection {
 
 	set value(value: TypeHierarchyDirection) {
 		this._value = value;
+
 		this._ctxMode.set(value);
+
 		this._mem.update(RichTypesDirection._key, value);
 	}
 }

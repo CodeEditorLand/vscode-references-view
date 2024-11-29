@@ -39,6 +39,7 @@ export class ReferencesTreeInput
 					vscode.Location[] | vscode.LocationLink[]
 				>(this._command, this.location.uri, this.location.range.start),
 			);
+
 			model = new ReferencesModel(resut ?? []);
 		}
 
@@ -76,6 +77,7 @@ export class ReferencesModel
 	private _onDidChange = new vscode.EventEmitter<
 		FileItem | ReferenceItem | undefined
 	>();
+
 	readonly onDidChangeTreeData = this._onDidChange.event;
 
 	readonly items: FileItem[] = [];
@@ -95,8 +97,10 @@ export class ReferencesModel
 					0
 			) {
 				last = new FileItem(loc.uri.with({ fragment: "" }), [], this);
+
 				this.items.push(last);
 			}
+
 			last.references.push(new ReferenceItem(loc, last));
 		}
 	}
@@ -114,6 +118,7 @@ export class ReferencesModel
 		} else if (aStr > bStr) {
 			return 1;
 		}
+
 		return 0;
 	}
 
@@ -150,6 +155,7 @@ export class ReferencesModel
 		if (this.items.length === 0) {
 			return "No results.";
 		}
+
 		const total = this.items.reduce(
 			(prev, cur) => prev + cur.references.length,
 			0,
@@ -195,8 +201,10 @@ export class ReferencesModel
 					if (ref.location.range.end.isAfter(position)) {
 						return ref;
 					}
+
 					lastBefore = ref;
 				}
+
 				if (lastBefore) {
 					return lastBefore;
 				}
@@ -237,6 +245,7 @@ export class ReferencesModel
 		) {
 			pos += 1;
 		}
+
 		return pos;
 	}
 
@@ -297,12 +306,14 @@ export class ReferencesModel
 	remove(item: FileItem | ReferenceItem) {
 		if (item instanceof FileItem) {
 			del(this.items, item);
+
 			this._onDidChange.fire(undefined);
 		} else {
 			del(item.file.references, item);
 
 			if (item.file.references.length === 0) {
 				del(this.items, item.file);
+
 				this._onDidChange.fire(undefined);
 			} else {
 				this._onDidChange.fire(item.file);
@@ -316,6 +327,7 @@ export class ReferencesModel
 		for (const item of this.items) {
 			result += `${await item.asCopyText()}\n`;
 		}
+
 		return result;
 	}
 
@@ -332,6 +344,7 @@ class ReferencesTreeDataProvider
 	implements vscode.TreeDataProvider<FileItem | ReferenceItem>
 {
 	private readonly _listener: vscode.Disposable;
+
 	private readonly _onDidChange = new vscode.EventEmitter<
 		FileItem | ReferenceItem | undefined
 	>();
@@ -346,6 +359,7 @@ class ReferencesTreeDataProvider
 
 	dispose(): void {
 		this._onDidChange.dispose();
+
 		this._listener.dispose();
 	}
 
@@ -353,9 +367,13 @@ class ReferencesTreeDataProvider
 		if (element instanceof FileItem) {
 			// files
 			const result = new vscode.TreeItem(element.uri);
+
 			result.contextValue = "file-item";
+
 			result.description = true;
+
 			result.iconPath = vscode.ThemeIcon.File;
+
 			result.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 
 			return result;
@@ -373,8 +391,11 @@ class ReferencesTreeDataProvider
 			};
 
 			const result = new vscode.TreeItem(label);
+
 			result.collapsibleState = vscode.TreeItemCollapsibleState.None;
+
 			result.contextValue = "reference-item";
+
 			result.command = {
 				command: "vscode.open",
 				title: "Open Reference",
@@ -394,9 +415,11 @@ class ReferencesTreeDataProvider
 		if (!element) {
 			return this._model.items;
 		}
+
 		if (element instanceof FileItem) {
 			return element.references;
 		}
+
 		return undefined;
 	}
 
@@ -424,6 +447,7 @@ export class FileItem {
 		for (let ref of this.references) {
 			result += `  ${await ref.asCopyText()}\n`;
 		}
+
 		return result;
 	}
 }
@@ -442,6 +466,7 @@ export class ReferenceItem {
 				this.location.uri,
 			);
 		}
+
 		if (warmUpNext) {
 			// load next document once this document has been loaded
 			const next = this.file.model.next(this.file);
@@ -452,6 +477,7 @@ export class ReferenceItem {
 				vscode.workspace.openTextDocument(next.location.uri);
 			}
 		}
+
 		return this._document;
 	}
 
