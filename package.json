@@ -386,7 +386,7 @@
 	],
 	"dependencies": {},
 	"devDependencies": {
-		"@types/node": "22.10.10",
+		"@types/node": "22.13.0",
 		"esbuild": "0.24.2"
 	},
 	"icon": "media/icon.png",
